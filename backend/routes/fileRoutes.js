@@ -109,5 +109,19 @@ router.get("/public-files", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// --------------------------
+// GET ALL PUBLIC FILES
+// --------------------------
+router.get("/public", async (req, res) => {
+  try {
+    const files = await File.find({ privacy: "public" }).populate(
+      "uploaded_by",
+      "username"
+    );
+    res.json(files);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 export default router;

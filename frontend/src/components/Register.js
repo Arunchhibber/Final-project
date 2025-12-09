@@ -1,10 +1,10 @@
-// src/components/Register.js
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import "./Auth.css"; // <-- import CSS
 
 function Register() {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,19 +13,16 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/auth/register", // must match backend
-        { username, email, password }
+        "http://localhost:8000/api/auth/register",
+        { name, email, password }
       );
 
-      console.log("✅ Full Axios response:", res);
-
-      alert(res.data.msg);
+      alert("Registration successful! You can now login.");
       navigate("/login");
     } catch (err) {
-      console.error("❌ Full Axios error object:", err);
-
       const message =
         err.response?.data?.msg ||
         err.response?.data?.error ||
@@ -37,40 +34,46 @@ function Register() {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto" }}>
-      <h2>Register</h2>
-      <form onSubmit={handleRegister}>
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-        />
-        <input
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-        />
-        <input
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          style={{ width: "100%", padding: "10px", cursor: "pointer" }}
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
+    <div className="auth-container">
+      <div className="auth-box">
+        <h2>Register</h2>
+        <form onSubmit={handleRegister}>
+          <div style={{ marginBottom: "10px" }}>
+            <input
+              placeholder="Name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div style={{ marginBottom: "10px" }}>
+            <input
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div style={{ marginBottom: "10px" }}>
+            <input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
+
+        <p>
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
+      </div>
     </div>
   );
 }

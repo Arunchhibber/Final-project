@@ -1,43 +1,52 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Register from "./components/Register";
-import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
-import Upload from "./components/Upload";
-import MyFiles from "./components/MyFiles";
+  import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-// Check if user is authenticated
-const isAuthenticated = () => !!localStorage.getItem("token");
+  import Register from "./components/Register";
+  import Login from "./components/Login";
+  import Dashboard from "./components/Dashboard";
+  import Upload from "./components/Upload";
+  import MyFiles from "./components/MyFiles";
+  import Downloads from "./components/Downloads";
+  import Navbar from "./components/Navbar";
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+  const isAuthenticated = () => !!localStorage.getItem("token");
 
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={isAuthenticated() ? <Dashboard /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/upload"
-          element={isAuthenticated() ? <Upload /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/my-files"
-          element={isAuthenticated() ? <MyFiles /> : <Navigate to="/login" />}
-        />
+  function App() {
+    return (
+      <Router>
+        {/* Navbar appears on all protected pages */}
+        {isAuthenticated() && <Navbar />}
 
-        {/* Redirect unknown routes */}
-        <Route
-          path="*"
-          element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} />}
-        />
-      </Routes>
-    </Router>
-  );
-}
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
 
-export default App;
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={isAuthenticated() ? <Dashboard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/upload"
+            element={isAuthenticated() ? <Upload /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/my-files"
+            element={isAuthenticated() ? <MyFiles /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/downloads"
+            element={isAuthenticated() ? <Downloads /> : <Navigate to="/login" />}
+          />
+
+          {/* Unknown routes */}
+          <Route
+            path="*"
+            element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} />}
+          />
+        </Routes>
+      </Router>
+    );
+  }
+
+  export default App;
