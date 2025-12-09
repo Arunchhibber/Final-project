@@ -4,25 +4,33 @@ import axios from "axios";
 
 function Upload() {
   const [file, setFile] = useState(null);
-  const [privacy, setPrivacy] = useState("public");
+  const [privacy, setPrivacy] = useState("private");
+  const [loading, setLoading] = useState(false);
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return alert("Please select a file");
+    if (!file) return alert("Please select a file to upload.");
 
     const formData = new FormData();
     formData.append("file", file);
     formData.append("privacy", privacy);
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/upload", formData, {
-        headers: { "x-auth-token": token, "Content-Type": "multipart/form-data" },
+      setLoading(true);
+      const token = localStorage.getItem("token"); // JWT from login
+      const res = await axios.post("http://localhost:8000/api/files/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
       });
-      alert("File uploaded successfully");
+      alert(res.data.msg);
       setFile(null);
     } catch (err) {
-      alert(err.response.data.msg || err.response.data.error);
+      console.error("Upload error:", err);
+      alert("File upload failed. Check console for details.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,12 +38,21 @@ function Upload() {
     <div>
       <h2>Upload File</h2>
       <form onSubmit={handleUpload}>
-        <input type="file" onChange={e => setFile(e.target.files[0])} required />
-        <select value={privacy} onChange={e => setPrivacy(e.target.value)}>
-          <option value="public">Public</option>
-          <option value="private">Private</option>
-        </select>
-        <button type="submit">Upload</button>
+        <div style={{ marginBottom: "10px" }}>
+          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+          <label>
+            Privacy:{" "}
+            <select value={privacy} onChange={(e) => setPrivacy(e.target.value)}>
+              <option value="private">Private</option>
+              <option value="public">Public</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit" disabled={loading}>
+          {loading ? "Uploading..." : "Upload"}
+        </button>
       </form>
     </div>
   );

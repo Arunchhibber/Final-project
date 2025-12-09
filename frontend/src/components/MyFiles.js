@@ -4,48 +4,52 @@ import axios from "axios";
 
 function MyFiles() {
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/my-files", {
-          headers: { "x-auth-token": token },
+        const token = localStorage.getItem("token"); // JWT token from login
+        const res = await axios.get("http://localhost:8000/api/files/my-files", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         setFiles(res.data);
       } catch (err) {
-        alert(err.response.data.msg || err.response.data.error);
+        console.error("Error fetching files:", err);
+        alert("Failed to fetch files. Make sure the backend is running.");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchFiles();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this file?")) return;
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/files/${id}`, {
-        headers: { "x-auth-token": token },
-      });
-      setFiles(files.filter(f => f._id !== id));
-      alert("File deleted");
-    } catch (err) {
-      alert(err.response.data.msg || err.response.data.error);
-    }
-  };
+  if (loading) return <p>Loading files...</p>;
 
   return (
-    <div>
+    <div style={{ maxWidth: "600px", margin: "50px auto" }}>
       <h2>My Files</h2>
-      <ul>
-        {files.map(f => (
-          <li key={f._id}>
-            {f.filename} - {f.privacy} - {new Date(f.uploaded_at).toLocaleString()}
-            <a href={`http://localhost:5000/${f.path}`} target="_blank" rel="noreferrer"> Download </a>
-            <button onClick={() => handleDelete(f._id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      {files.length === 0 ? (
+        <p>No files uploaded yet.</p>
+      ) : (
+        <ul>
+          {files.map((file) => (
+            <li key={file._id} style={{ marginBottom: "10px" }}>
+              <strong>{file.filename}</strong> - {file.size} bytes - {file.privacy}{" "}
+              <a
+                href={`http://localhost:8000/${file.path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

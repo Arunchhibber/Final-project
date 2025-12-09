@@ -1,7 +1,6 @@
-// src/components/Login.js
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -15,23 +14,26 @@ function Login() {
 
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/auth/login", // must match backend port
+        "http://localhost:8000/api/auth/login", // Backend port
         { email, password }
       );
 
-      console.log("Login response:", res); // <-- log full response
-      alert(`Welcome ${res.data.user.username}!`);
-      
-      // Store JWT token for future requests
-      localStorage.setItem("token", res.data.token);
+      console.log("Login response:", res);
 
-      navigate("/dashboard"); // or any protected page
+      // Store token and username
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("username", res.data.user.username);
+
+      alert(`Welcome ${res.data.user.username}!`);
+
+      navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
+
       const message =
         err.response?.data?.msg ||
         err.response?.data?.error ||
-        "Login failed. Is backend running?";
+        "Login failed. Is the backend running?";
       alert(message);
     } finally {
       setLoading(false);
@@ -70,6 +72,13 @@ function Login() {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+
+      <p style={{ marginTop: "15px", textAlign: "center" }}>
+        Don't have an account?{" "}
+        <Link to="/register" style={{ color: "blue", textDecoration: "underline" }}>
+          Register
+        </Link>
+      </p>
     </div>
   );
 }
