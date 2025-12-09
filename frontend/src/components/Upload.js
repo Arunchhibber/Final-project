@@ -1,58 +1,66 @@
 // src/components/Upload.js
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Upload() {
   const [file, setFile] = useState(null);
   const [privacy, setPrivacy] = useState("private");
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return alert("Please select a file to upload.");
-
+    if (!file) return alert("Please select a file");
     const formData = new FormData();
     formData.append("file", file);
     formData.append("privacy", privacy);
 
     try {
-      setLoading(true);
-      const token = localStorage.getItem("token"); // JWT from login
-      const res = await axios.post("http://localhost:8000/api/files/upload", formData, {
+      await axios.post("http://localhost:8000/api/files/upload", formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
       });
-      alert(res.data.msg);
-      setFile(null);
+      alert("File uploaded successfully");
+      navigate("/my-files");
     } catch (err) {
-      console.error("Upload error:", err);
-      alert("File upload failed. Check console for details.");
-    } finally {
-      setLoading(false);
+      console.error(err);
+      alert(err.response?.data?.msg || "Error uploading file");
     }
   };
 
   return (
-    <div>
+    <div style={{ maxWidth: "400px", margin: "50px auto" }}>
       <h2>Upload File</h2>
       <form onSubmit={handleUpload}>
         <div style={{ marginBottom: "10px" }}>
-          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+          <input type="file" onChange={(e) => setFile(e.target.files[0])} required />
         </div>
         <div style={{ marginBottom: "10px" }}>
           <label>
-            Privacy:{" "}
-            <select value={privacy} onChange={(e) => setPrivacy(e.target.value)}>
-              <option value="private">Private</option>
-              <option value="public">Public</option>
-            </select>
+            <input
+              type="radio"
+              name="privacy"
+              value="private"
+              checked={privacy === "private"}
+              onChange={(e) => setPrivacy(e.target.value)}
+            />{" "}
+            Private
+          </label>{" "}
+          <label>
+            <input
+              type="radio"
+              name="privacy"
+              value="public"
+              checked={privacy === "public"}
+              onChange={(e) => setPrivacy(e.target.value)}
+            />{" "}
+            Public
           </label>
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? "Uploading..." : "Upload"}
-        </button>
+        <button type="submit">Upload</button>
       </form>
     </div>
   );

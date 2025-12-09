@@ -1,55 +1,97 @@
-// src/components/MyFiles.js
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 function MyFiles() {
   const [files, setFiles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
+
+  // Fetch user files
+  const fetchFiles = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/files/my-files", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      console.log("Fetched files:", data);
+      setFiles(data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to fetch files");
+    }
+  };
+
+  // Delete file
+  const deleteFile = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/files/delete/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) setFiles(files.filter(f => f._id !== id));
+      else alert(data.error);
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed");
+    }
+  };
+
+  // Download file
+  const downloadFile = async (id, filename) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/files/download/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        return alert(err.error);
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Download failed");
+    }
+  };
 
   useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const token = localStorage.getItem("token"); // JWT token from login
-        const res = await axios.get("http://localhost:8000/api/files/my-files", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setFiles(res.data);
-      } catch (err) {
-        console.error("Error fetching files:", err);
-        alert("Failed to fetch files. Make sure the backend is running.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchFiles();
   }, []);
 
-  if (loading) return <p>Loading files...</p>;
-
   return (
-    <div style={{ maxWidth: "600px", margin: "50px auto" }}>
-      <h2>My Files</h2>
-      {files.length === 0 ? (
-        <p>No files uploaded yet.</p>
-      ) : (
-        <ul>
-          {files.map((file) => (
-            <li key={file._id} style={{ marginBottom: "10px" }}>
-              <strong>{file.filename}</strong> - {file.size} bytes - {file.privacy}{" "}
-              <a
-                href={`http://localhost:8000/${file.path}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Download
-              </a>
-            </li>
+    <div style={{ padding: "30px" }}>
+      <h1>My Files</h1>
+      <table border="1" cellPadding="10">
+        <thead>
+          <tr>
+            <th>Filename</th>
+            <th>Privacy</th>
+            <th>Download</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {files.map(file => (
+            <tr key={file._id}>
+              <td>{file.filename}</td>
+              <td>{file.privacy}</td>
+              <td>
+                <button onClick={() => downloadFile(file._id, file.filename)}>Download</button>
+              </td>
+              <td>
+                <button style={{ color: "red" }} onClick={() => deleteFile(file._id)}>Delete</button>
+              </td>
+            </tr>
           ))}
-        </ul>
-      )}
+        </tbody>
+      </table>
     </div>
   );
 }

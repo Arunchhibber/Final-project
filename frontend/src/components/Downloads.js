@@ -1,33 +1,29 @@
 // src/components/Downloads.js
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 function Downloads() {
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/public-files");
-        setFiles(res.data);
-      } catch (err) {
-        alert(err.response.data.msg || err.response.data.error);
-      }
-    };
-    fetchFiles();
+    axios.get("http://localhost:8000/api/files/public-files")
+      .then(res => setFiles(res.data))
+      .catch(err => console.error(err));
   }, []);
 
   return (
-    <div>
+    <div style={{ maxWidth: "800px", margin: "20px auto" }}>
       <h2>Public Downloads</h2>
-      <ul>
-        {files.map(f => (
-          <li key={f._id}>
-            {f.filename} - {new Date(f.uploaded_at).toLocaleString()}
-            <a href={`http://localhost:5000/${f.path}`} target="_blank" rel="noreferrer"> Download </a>
-          </li>
-        ))}
-      </ul>
+      {files.length === 0 ? (
+        <p>No public files available</p>
+      ) : (
+        files.map(file => (
+          <div key={file._id} style={{ marginBottom: "10px" }}>
+            {file.filename}{" "}
+            <a href={`http://localhost:8000/${file.path}`} target="_blank" rel="noopener noreferrer">Download</a>
+          </div>
+        ))
+      )}
     </div>
   );
 }
