@@ -1,7 +1,7 @@
-// src/components/Upload.js
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./Upload.css"; // Make sure this file exists
 
 function Upload() {
   const [file, setFile] = useState(null);
@@ -11,7 +11,20 @@ function Upload() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
+
     if (!file) return alert("Please select a file");
+
+    // FRONTEND VALIDATION
+    const allowedTypes = ["application/pdf", "video/mp4"];
+    if (!allowedTypes.includes(file.type)) {
+      return alert("Unsupported file type. Only PDF and MP4 are allowed.");
+    }
+
+    const maxSize = 20 * 1024 * 1024; // 20 MB
+    if (file.size > maxSize) {
+      return alert("File too large. Maximum size is 20 MB.");
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("privacy", privacy);
@@ -32,36 +45,42 @@ function Upload() {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto" }}>
-      <h2>Upload File</h2>
-      <form onSubmit={handleUpload}>
-        <div style={{ marginBottom: "10px" }}>
-          <input type="file" onChange={(e) => setFile(e.target.files[0])} required />
-        </div>
-        <div style={{ marginBottom: "10px" }}>
-          <label>
+    <div className="upload-container">
+      <div className="upload-box">
+        <h2>Upload File</h2>
+        <form onSubmit={handleUpload}>
+          <div className="form-group">
             <input
-              type="radio"
-              name="privacy"
-              value="private"
-              checked={privacy === "private"}
-              onChange={(e) => setPrivacy(e.target.value)}
-            />{" "}
-            Private
-          </label>{" "}
-          <label>
-            <input
-              type="radio"
-              name="privacy"
-              value="public"
-              checked={privacy === "public"}
-              onChange={(e) => setPrivacy(e.target.value)}
-            />{" "}
-            Public
-          </label>
-        </div>
-        <button type="submit">Upload</button>
-      </form>
+              type="file"
+              onChange={(e) => setFile(e.target.files[0])}
+              required
+            />
+          </div>
+          <div className="form-group privacy-group">
+            <label>
+              <input
+                type="radio"
+                name="privacy"
+                value="private"
+                checked={privacy === "private"}
+                onChange={(e) => setPrivacy(e.target.value)}
+              />
+              Private
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="privacy"
+                value="public"
+                checked={privacy === "public"}
+                onChange={(e) => setPrivacy(e.target.value)}
+              />
+              Public
+            </label>
+          </div>
+          <button type="submit" className="upload-btn">Upload</button>
+        </form>
+      </div>
     </div>
   );
 }

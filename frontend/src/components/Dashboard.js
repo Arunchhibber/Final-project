@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { FaUserCircle } from "react-icons/fa";
 import "./Dashboard.css";
 
 function Dashboard() {
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username");
 
   // Fetch user's files
   const fetchFiles = async () => {
@@ -104,13 +109,52 @@ function Dashboard() {
     }
   };
 
+  // Logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    window.location.href = "/login"; // redirect to login
+  };
+
+  // Close dropdown if clicked outside
+  const handleClickOutside = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setDropdownOpen(false);
+    }
+  };
+
   useEffect(() => {
     fetchFiles();
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <div className="dashboard-container">
-      
+      {/* User Info Header with Dropdown */}
+      <header className="dashboard-header">
+        <div className="user-info" ref={dropdownRef}>
+          <div
+            className="user-dropdown-toggle"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            <FaUserCircle className="user-icon" />
+            <span className="username">{username || "Guest"}</span>
+          </div>
+
+          {dropdownOpen && (
+            <div className="user-dropdown-menu">
+              <button className="dropdown-item" onClick={() => alert("Profile clicked")}>
+                Profile
+              </button>
+              <button className="dropdown-item" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
+
       {/* Upload Section */}
       <div className="section-box">
         <h2>Upload File</h2>
