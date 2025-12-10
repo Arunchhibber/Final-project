@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import "./Auth.css"; // <-- import CSS
 
 function Register() {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(""); // input field
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,9 +15,10 @@ function Register() {
     setLoading(true);
 
     try {
+      // Map 'name' to 'username' for backend
       const res = await axios.post(
         "http://localhost:8000/api/auth/register",
-        { name, email, password }
+        { username: name, email, password } // <-- key change
       );
 
       alert("Registration successful! You can now login.");
@@ -36,7 +37,7 @@ function Register() {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h2>Register</h2>
+        <h2>Sign Up</h2>
         <form onSubmit={handleRegister}>
           <div style={{ marginBottom: "10px" }}>
             <input
@@ -66,7 +67,7 @@ function Register() {
             />
           </div>
           <button type="submit" disabled={loading}>
-            {loading ? "Registering..." : "Register"}
+            {loading ? "Registering..." : "Sign Up"}
           </button>
         </form>
 

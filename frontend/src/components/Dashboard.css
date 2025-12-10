@@ -3,18 +3,20 @@
   font-family: Arial, sans-serif;
 }
 
+/* DASHBOARD HEADER (NOW BLACK) */
 .dashboard-header {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   padding: 10px 20px;
-  background-color: #1d4ed8;
+  background-color: #000000; /* BLACK */
   color: white;
   border-radius: 8px;
   margin-bottom: 20px;
   position: relative;
 }
 
+/* USER PROFILE DROPDOWN AREA */
 .user-info {
   position: relative;
   cursor: pointer;
@@ -65,7 +67,7 @@
 
 /* Section Boxes */
 .section-box {
-  background-color: #f9f9f9;
+  background-color: #ffffff; /* KEEP WHITE */
   padding: 15px 20px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -74,7 +76,7 @@
 
 .section-box h2 {
   margin-bottom: 10px;
-  color: #1d4ed8;
+  color: #000000; /* Make headings black or keep blue—your choice */
 }
 
 /* Table */
@@ -88,11 +90,13 @@ th, td {
   border: 1px solid #ddd;
 }
 
+/* TABLE HEADERS (NOW BLACK) */
 th {
-  background-color: #1d4ed8;
-  color: white;
+  background-color: #000000; /* BLACK */
+  color: white;             /* WHITE TEXT */
 }
 
+/* DELETE BUTTON */
 .delete-btn {
   background-color: #dc3545;
   color: white;

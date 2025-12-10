@@ -4,7 +4,6 @@ import "./Dashboard.css";
 
 function Dashboard() {
   const [files, setFiles] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -79,41 +78,11 @@ function Dashboard() {
     }
   };
 
-  // Upload file
-  const uploadFile = async () => {
-    if (!selectedFile) return alert("Select a file first");
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("privacy", "public");
-
-    try {
-      const res = await fetch("http://localhost:8000/api/files/upload", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("File uploaded");
-        setSelectedFile(null);
-        fetchFiles();
-      } else {
-        alert(data.error || "Upload failed");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed");
-    }
-  };
-
   // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
-    window.location.href = "/login"; // redirect to login
+    window.location.href = "/login";
   };
 
   // Close dropdown if clicked outside
@@ -155,14 +124,7 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* Upload Section */}
-      <div className="section-box">
-        <h2>Upload File</h2>
-        <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} />
-        <button onClick={uploadFile}>Upload</button>
-      </div>
-
-      {/* Files Table */}
+      {/* Files Section */}
       <div className="section-box">
         <h2>My Files</h2>
 
@@ -199,7 +161,6 @@ function Dashboard() {
                 </tr>
               ))}
             </tbody>
-
           </table>
         )}
       </div>

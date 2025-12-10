@@ -64,7 +64,7 @@ function Login() {
         </form>
 
         <p>
-          Don't have an account? <Link to="/register">Register</Link>
+          Don't have an account? <Link to="/register">Sign Up</Link>
         </p>
       </div>
     </div>
